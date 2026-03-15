@@ -38,7 +38,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;use
 .intro-sub strong{color:var(--text)}
 
 /* BILLI PICKER */
-.billi-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:32px;opacity:0;animation:fadeUp 0.7s forwards 0.7s;width:100%}
+.billi-pick{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:32px;opacity:0;animation:fadeUp 0.7s forwards 0.7s;width:100%}
 .bp-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 10px;cursor:pointer;transition:all 0.2s;text-align:center}
 .bp-card:hover,.bp-card.active{border-color:var(--gold);background:rgba(201,168,76,0.08);transform:translateY(-2px)}
 .bp-card.active{box-shadow:0 0 0 1px var(--gold)}
@@ -383,6 +383,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;use
         <div class="bp-name">Gates</div>
         <div class="bp-wealth">$108B</div>
       </div>
+      <div class="bp-card" data-key="tate" onclick="selectBilli(this)">
+        <span class="bp-emoji">🥋</span>
+        <div class="bp-name">Tate</div>
+        <div class="bp-wealth">$1B*</div>
+      </div>
     </div>
 
     <div class="time-pick" id="timePick">
@@ -458,6 +463,7 @@ const BILLIS = {
   bezos:       { name:'Jeff Bezos',      emoji:'🛥️', wealth:224e9 },
   zuckerberg:  { name:'Mark Zuckerberg', emoji:'🤖', wealth:222e9 },
   gates:       { name:'Bill Gates',      emoji:'💻', wealth:108e9 },
+  tate:        { name:'Andrew Tate',     emoji:'🥋', wealth:1e9,  annualIncome:50e6 },
 };
 
 const CATEGORIES = [

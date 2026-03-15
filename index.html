@@ -304,6 +304,8 @@ footer{text-align:center;padding:80px 24px;border-top:1px solid var(--border);co
         <option value="buffett">Warren Buffett</option>
         <option value="gates">Bill Gates</option>
         <option value="adelson">Jensen Huang</option>
+        <option value="tate">Andrew Tate 🥋</option>
+        <option value="tate">Andrew Tate</option>
       </select>
       <span class="lc-label">has earned:</span>
     </div>
@@ -397,6 +399,12 @@ footer{text-align:center;padding:80px 24px;border-top:1px solid var(--border);co
       <div class="billi-name">Jensen Huang</div>
       <div class="billi-wealth" id="nw-adelson">$154B</div>
       <div class="billi-source" id="src-adelson">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="tate" onclick="selectBilli(this)">
+      <span class="billi-emoji">🥋</span>
+      <div class="billi-name">Andrew Tate</div>
+      <div class="billi-wealth" id="nw-tate">$1B*</div>
+      <div class="billi-source" id="src-tate">Self-reported 😂</div>
     </div>
   </div>
 
@@ -600,6 +608,21 @@ const BILLI_DATA = {
       { icon:"📰", title:"Buy the Washington Post",                amount:250_000_000,    desc:"Price Bezos actually paid in 2013" },
     ]
   },
+  tate: {
+    name: "Andrew Tate", emoji: "🥋",
+    wealth: 1e9,
+    annualIncome: 50e6,
+    comparisons: [
+      { icon:"🚗", title:"Bugatti Chiron (his favourite)",      amount:3_900_000,  desc:"He owns multiple Bugattis — this is his favourite flex" },
+      { icon:"🏠", title:"Romanian compound (full complex)",    amount:5_000_000,  desc:"His Bucharest villa complex with security and staff" },
+      { icon:"⌚", title:"Richard Mille RM 056 Sapphire",      amount:2_000_000,  desc:"His signature wrist piece — see every podcast appearance" },
+      { icon:"🥊", title:"Private kickboxing coaching (1 yr)", amount:500_000,    desc:"World-class coaches, private gym, full setup" },
+      { icon:"✈️", title:"Private jet charter (monthly)",       amount:300_000,    desc:"His preferred way to move between Romania/Dubai/UK" },
+      { icon:"🏰", title:"Buy a Romanian castle",               amount:8_000_000,  desc:"Actual castles in Romania — he could afford 125" },
+      { icon:"⚖️", title:"Legal defense fund (est. annual)",   amount:10_000_000, desc:"Estimated annual legal costs since his 2022 arrest" },
+      { icon:"🎓", title:"Hustlers University (1 yr revenue)", amount:100_000_000,desc:"Est. peak annual revenue from his online courses" },
+    ]
+  },
   gates: {
     name: "Bill Gates", emoji: "💻",
     wealth: 108e9,
@@ -643,6 +666,21 @@ const BILLI_DATA = {
       { icon:"🏠", title:"San Jose compound + Atherton estate",     amount:30_000_000,    desc:"Known primary residences, combined value" },
       { icon:"🤖", title:"Buy 1,000 H100 GPUs for a startup",       amount:40_000_000,    desc:"At ~$40K/GPU on secondary market" },
       { icon:"🏆", title:"Acquire a mid-tier AI startup",           amount:500_000_000,   desc:"Typical acqui-hire or small AI co price" },
+    ]
+  },
+  tate: {
+    name: "Andrew Tate", emoji: "🥋",
+    wealth: 1e9,
+    annualIncome: 50e6,
+    comparisons: [
+      { icon:"🏎️", title:"Bugatti Chiron (one of his 4)",            amount:3_900_000,  desc:"He claimed to own 4 Bugattis — one was confiscated" },
+      { icon:"🥊", title:"Kickboxing World Title Belt (replica)",     amount:50_000,     desc:"4× World Champion — the real one is priceless" },
+      { icon:"🏠", title:"Romanian compound in Bucharest",           amount:3_000_000,  desc:"Where he was arrested — 10 acres, multiple villas" },
+      { icon:"✈️", title:"Private jet charter (his favourite flex)", amount:80_000,     desc:"One-way Europe to Dubai, full cabin" },
+      { icon:"🎓", title:"Hustler's University (1 month revenue)",   amount:4_500_000,  desc:"~150K members × $30/month at peak" },
+      { icon:"🚁", title:"Helicopter — his daily commute",           amount:2_000_000,  desc:"His preferred way to avoid traffic in Bucharest" },
+      { icon:"⌚", title:"Richard Mille RM 69 on his wrist",         amount:750_000,    desc:"Spotted multiple times in his videos" },
+      { icon:"💰", title:"Legal fees since 2022",                    amount:10_000_000, desc:"Estimated Romanian + international legal costs" },
     ]
   }
 };
@@ -1071,6 +1109,8 @@ const ANNUAL_INCOME = {
   buffett:        5_000_000_000,
   gates:          5_000_000_000,
   adelson:        8_000_000_000,
+  tate:           50_000_000,
+  tate:           50_000_000,
 };
 
 const PER_SECOND = {};
