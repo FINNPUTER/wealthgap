@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEALTH RATIO — The Perspective Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400;1,700&family=Space+Mono:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #F0D080;
+  --gold-dim: rgba(201,168,76,0.15);
+  --black: #060606;
+  --surface: #0f0f0f;
+  --surface2: #161616;
+  --surface3: #1e1e1e;
+  --border: #1f1f1f;
+  --border-gold: rgba(201,168,76,0.25);
+  --text: #E8E0D0;
+  --muted: #555;
+  --muted2: #777;
+  --accent: #FF4444;
+  --green: #3ECF8E;
+  --font-display: 'Playfair Display', serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);min-height:100vh;overflow-x:hidden}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.4}
+
+/* TOP BAR */
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 32px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(6,6,6,0.95);backdrop-filter:blur(20px);z-index:100}
+.logo{font-family:var(--font-display);font-size:18px;color:var(--gold);letter-spacing:0.05em}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.live-badge{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;color:var(--green);text-transform:uppercase;background:rgba(62,207,142,0.08);border:1px solid rgba(62,207,142,0.2);padding:5px 10px;border-radius:2px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.refresh-btn{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;padding:6px 14px;cursor:pointer;border-radius:2px;transition:all 0.2s;text-transform:uppercase}
+.refresh-btn:hover{border-color:var(--gold);color:var(--gold)}
+.refresh-btn.loading{color:var(--gold);border-color:var(--gold);animation:spin-text 1s infinite}
+
+/* HERO */
+.hero{padding:100px 24px 0;text-align:center;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(201,168,76,0.06) 0%,transparent 70%);pointer-events:none}
+.eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:28px;opacity:0;animation:fadeUp 0.6s forwards 0.1s}
+h1.hero-title{font-family:var(--font-display);font-size:clamp(56px,14vw,160px);font-weight:900;line-height:0.88;letter-spacing:-0.03em;background:linear-gradient(150deg,#fff 0%,var(--gold-light) 35%,var(--gold) 65%,#8a5a00 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;opacity:0;animation:fadeUp 0.8s forwards 0.25s}
+.hero-desc{max-width:520px;margin:28px auto 0;font-size:15px;line-height:1.7;color:var(--muted2);opacity:0;animation:fadeUp 0.7s forwards 0.5s}
+.hero-desc strong{color:var(--text);font-weight:500}
+
+/* TICKER */
+.ticker-outer{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:64px 0 0;padding:12px 0;opacity:0;animation:fadeIn 1s forwards 0.9s}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;animation:ticker 35s linear infinite}
+.ticker-inner:hover{animation-play-state:paused}
+.t-item{font-family:var(--font-mono);font-size:10px;letter-spacing:0.18em;color:var(--muted);text-transform:uppercase;padding:0 40px;border-right:1px solid var(--border);flex-shrink:0}
+.t-item span{color:var(--gold)}
+
+/* LAYOUT */
+.main{max-width:860px;margin:0 auto;padding:80px 24px}
+.section-head{font-family:var(--font-mono);font-size:9px;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:32px;display:flex;align-items:center;gap:16px}
+.section-head::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border),transparent)}
+
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:36px;margin-bottom:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--gold) 50%,transparent 100%);opacity:0.3}
+
+/* BILLIONAIRE PICKER */
+.billi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-bottom:32px}
+.billi-card{background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:14px 16px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.billi-card:hover,.billi-card.active{border-color:var(--border-gold);background:rgba(201,168,76,0.06)}
+.billi-card.active::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--gold)}
+.billi-emoji{font-size:22px;margin-bottom:8px;display:block}
+.billi-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.billi-wealth{font-family:var(--font-mono);font-size:10px;color:var(--gold);letter-spacing:0.1em}
+.billi-source{font-size:9px;color:var(--muted);margin-top:2px}
+.billi-card.refreshing .billi-wealth::after{content:' ...';animation:ellipsis 1s infinite}
+
+/* INPUT ROW */
+.input-group{margin-bottom:20px}
+.input-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.3em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:10px}
+.input-flex{display:flex;gap:10px;flex-wrap:wrap}
+.styled-select,.styled-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);padding:13px 16px;border-radius:2px;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.styled-select:focus,.styled-input:focus{border-color:var(--gold)}
+.styled-select{cursor:pointer}
+.styled-input{flex:1;min-width:180px;font-size:20px;font-weight:700;letter-spacing:-0.02em}
+.styled-input::placeholder{color:#2a2a2a}
+.currency-rate{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--font-mono)}
+.currency-rate .rate-val{color:var(--green)}
+
+/* QUICK AMOUNTS */
+.quick-amounts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.qa-btn{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;padding:7px 13px;cursor:pointer;border-radius:2px;transition:all 0.2s}
+.qa-btn:hover{border-color:var(--gold);color:var(--gold-light)}
+
+/* CTA */
+.cta{width:100%;background:var(--gold);color:#000;border:none;font-family:var(--font-mono);font-size:11px;font-weight:700;letter-spacing:0.35em;text-transform:uppercase;padding:20px;cursor:pointer;border-radius:2px;margin-top:20px;transition:all 0.25s;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transform:translateX(-100%);transition:transform 0.4s}
+.cta:hover::before{transform:translateX(100%)}
+.cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(201,168,76,0.35)}
+
+/* UGC SECTION */
+.ugc-section{border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:20px}
+.ugc-header{background:var(--surface2);padding:16px 24px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:background 0.2s}
+.ugc-header:hover{background:var(--surface3)}
+.ugc-title{font-family:var(--font-mono);font-size:10px;letter-spacing:0.25em;color:var(--gold);text-transform:uppercase}
+.ugc-toggle{font-size:18px;color:var(--muted);transition:transform 0.3s}
+.ugc-toggle.open{transform:rotate(45deg)}
+.ugc-body{padding:24px;display:none}
+.ugc-body.open{display:block}
+.ugc-input-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;margin-bottom:12px;align-items:end}
+.ugc-name-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-body);font-size:14px;padding:11px 14px;border-radius:2px;outline:none;transition:border-color 0.2s}
+.ugc-name-input:focus{border-color:var(--gold)}
+.ugc-amount-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:14px;padding:11px 14px;border-radius:2px;outline:none;width:160px;transition:border-color 0.2s}
+.ugc-amount-input:focus{border-color:var(--gold)}
+.ugc-add-btn{background:var(--gold-dim);border:1px solid var(--border-gold);color:var(--gold);font-family:var(--font-mono);font-size:10px;padding:11px 18px;cursor:pointer;border-radius:2px;letter-spacing:0.2em;white-space:nowrap;transition:all 0.2s}
+.ugc-add-btn:hover{background:rgba(201,168,76,0.25)}
+.ugc-hint{font-size:11px;color:var(--muted);margin-bottom:16px}
+.ugc-list{display:flex;flex-direction:column;gap:8px}
+.ugc-item{display:flex;justify-content:space-between;align-items:center;background:var(--surface2);border:1px solid var(--border);padding:10px 14px;border-radius:2px}
+.ugc-item-name{font-size:13px;color:var(--text)}
+.ugc-item-amount{font-family:var(--font-mono);font-size:12px;color:var(--gold)}
+.ugc-item-del{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0 4px;transition:color 0.2s}
+.ugc-item-del:hover{color:var(--accent)}
+
+/* RESULTS */
+#results{display:none;margin-top:60px}
+#results.visible{display:block}
+.results-hero{text-align:center;margin-bottom:48px}
+.results-title{font-family:var(--font-display);font-size:clamp(26px,5vw,46px);font-weight:900;color:#fff;margin-bottom:8px}
+.results-sub{font-size:13px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.15em}
+
+/* COMPARE CARDS */
+.compare-grid{display:flex;flex-direction:column;gap:12px;margin-bottom:40px}
+.cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:24px 28px;display:grid;grid-template-columns:1fr 48px 1fr;align-items:center;gap:16px;transition:all 0.25s;cursor:default;position:relative;overflow:hidden;animation:slideIn 0.5s both}
+.cmp-card:hover{border-color:#2a2a2a;box-shadow:0 8px 32px rgba(0,0,0,0.5);transform:translateY(-2px)}
+.cmp-card.ugc-card::before{content:'CUSTOM';position:absolute;top:10px;right:12px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.2em;color:var(--gold);opacity:0.5}
+.cmp-card::after{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(to bottom,var(--gold),transparent)}
+.side-lbl{font-family:var(--font-mono);font-size:8px;letter-spacing:0.3em;color:var(--muted);text-transform:uppercase;margin-bottom:5px}
+.side-icon{font-size:20px;margin-bottom:6px}
+.side-title{font-size:12px;font-weight:500;color:var(--muted2);margin-bottom:4px;line-height:1.3}
+.side-num{font-family:var(--font-display);font-size:clamp(22px,3.5vw,32px);font-weight:900;color:#fff;line-height:1;letter-spacing:-0.02em}
+.side-desc{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4}
+.eq-sign{text-align:center;font-family:var(--font-display);font-size:28px;color:var(--gold);opacity:0.4;font-style:italic}
+.your-num{color:var(--gold-light)!important;text-shadow:0 0 30px rgba(240,208,128,0.3)}
+.relatable-tag{display:inline-block;margin-top:8px;background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.2);padding:4px 10px;border-radius:100px;font-size:11px;color:var(--gold);font-weight:500}
+.zero-tag{background:rgba(255,68,68,0.08);border:1px solid rgba(255,68,68,0.2);color:#ff6666}
+
+/* EARN SPEED CARD */
+.earn-card{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:28px;margin-bottom:12px;animation:slideIn 0.4s both}
+.earn-title{font-family:var(--font-mono);font-size:9px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:20px}
+.earn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.earn-item{background:var(--surface2);border:1px solid var(--border);padding:14px;border-radius:2px}
+.earn-period{font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.earn-amount{font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--gold-light)}
+.earn-you{font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:4px}
+.earn-you-val{color:var(--text)}
+
+/* SCREENSHOT PANEL */
+.screenshot-panel{background:linear-gradient(135deg,#0f0d00,#0a0a0a);border:1px solid var(--border-gold);border-radius:3px;padding:28px 32px;margin-bottom:12px;animation:slideIn 0.4s both 0.2s}
+.ss-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.ss-desc{font-size:12px;color:var(--muted2);margin-bottom:20px}
+.ss-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ss-card-select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font-mono);font-size:10px;padding:9px 14px;border-radius:2px;outline:none;cursor:pointer}
+.ss-card-select:focus{border-color:var(--gold)}
+.ss-btn{background:var(--gold);color:#000;border:none;font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:0.3em;padding:10px 20px;cursor:pointer;border-radius:2px;transition:all 0.2s;text-transform:uppercase}
+.ss-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.3)}
+.ss-btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+
+/* SHARE STRIP */
+.share-bar{background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:20px 28px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.share-copy{font-size:12px;color:var(--muted2)}
+.share-copy strong{color:var(--text)}
+.share-btns{display:flex;gap:8px}
+.share-btn{background:transparent;border:1px solid var(--border);color:var(--muted2);font-family:var(--font-mono);font-size:9px;letter-spacing:0.2em;padding:9px 16px;cursor:pointer;border-radius:2px;transition:all 0.2s;text-transform:uppercase}
+.share-btn:hover{border-color:var(--gold);color:var(--gold)}
+.share-btn.ok{border-color:var(--green);color:var(--green)}
+
+/* SCREENSHOT TARGET (hidden div for capture) */
+#ssTarget{position:fixed;left:-9999px;top:0;width:800px;background:#080808;padding:60px;font-family:var(--font-body);z-index:-1}
+.ss-inner{border:1px solid rgba(201,168,76,0.2);border-radius:4px;padding:48px;position:relative;overflow:hidden}
+.ss-inner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.ss-brand{font-family:'Playfair Display',serif;font-size:13px;color:var(--gold);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:36px;opacity:0.7}
+.ss-big-label{font-family:'Playfair Display',serif;font-size:13px;color:var(--muted);margin-bottom:8px;font-style:italic}
+.ss-billi-name{font-family:'Playfair Display',serif;font-size:48px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
+.ss-billi-spend{font-family:'Space Mono',monospace;font-size:14px;color:var(--gold);letter-spacing:0.1em;margin-bottom:48px}
+.ss-divider{height:1px;background:linear-gradient(90deg,rgba(201,168,76,0.3),transparent);margin-bottom:48px}
+.ss-eq-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.35em;color:var(--muted);text-transform:uppercase;margin-bottom:12px}
+.ss-your-line{font-family:'Playfair Display',serif;font-size:52px;font-weight:900;color:var(--gold-light);line-height:1;margin-bottom:8px;text-shadow:0 0 40px rgba(240,208,128,0.2)}
+.ss-relatable{font-family:'DM Sans',sans-serif;font-size:18px;color:var(--muted2);margin-bottom:36px}
+.ss-footer{display:flex;justify-content:space-between;align-items:center}
+.ss-hashtag{font-family:'Space Mono',monospace;font-size:11px;color:var(--gold);opacity:0.6;letter-spacing:0.1em}
+.ss-url{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.05em}
+
+/* FOOTER */
+footer{text-align:center;padding:80px 24px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;font-family:var(--font-mono);letter-spacing:0.12em}
+.footer-brand{font-family:var(--font-display);font-size:28px;color:var(--gold);margin-bottom:8px}
+.footer-links{display:flex;justify-content:center;gap:24px;margin-top:16px;flex-wrap:wrap}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;transition:color 0.2s}
+.footer-links a:hover{color:var(--gold)}
+
+/* GAME CTA BANNER */
+.game-cta-banner{background:linear-gradient(135deg,#0d0800 0%,#111 50%,#0d0800 100%);border-top:1px solid rgba(201,168,76,0.2);border-bottom:1px solid rgba(201,168,76,0.2);padding:28px 32px;position:relative;overflow:hidden;opacity:0;animation:fadeIn 1s forwards 0.7s}
+.game-cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(201,168,76,0.07),transparent 60%);pointer-events:none}
+.gcta-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.gcta-left{flex:1}
+.gcta-tag{font-family:var(--font-mono);font-size:9px;letter-spacing:0.35em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.gcta-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite;display:inline-block}
+.gcta-title{font-family:var(--font-display);font-size:clamp(22px,4vw,36px);font-weight:900;color:#fff;line-height:1;margin-bottom:6px}
+.gcta-sub{font-size:13px;color:var(--muted2);line-height:1.5}
+.gcta-btn{background:var(--gold);color:#000;font-family:var(--font-mono);font-size:12px;font-weight:700;letter-spacing:0.3em;padding:16px 36px;border-radius:2px;text-decoration:none;white-space:nowrap;transition:all 0.2s;display:inline-block;flex-shrink:0}
+.gcta-btn:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(201,168,76,0.4);background:var(--gold-light)}
+
+/* LIVE COUNTER STRIP */
+.live-counter-strip{display:flex;justify-content:space-between;align-items:center;gap:24px;padding:28px 40px;background:linear-gradient(135deg,#0a0800 0%,#0d0d0d 100%);border-bottom:1px solid rgba(201,168,76,0.15);position:relative;overflow:hidden;flex-wrap:wrap}
+.live-counter-strip::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(201,168,76,0.04),transparent 60%);pointer-events:none}
+.live-counter-strip::after{content:'● LIVE';position:absolute;top:12px;right:16px;font-family:var(--font-mono);font-size:8px;letter-spacing:0.3em;color:var(--green);animation:pulse 2s infinite}
+.lc-left{flex:1;min-width:260px}
+.lc-right{display:flex;gap:16px;flex-shrink:0}
+.lc-selector-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.lc-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;color:var(--muted2)}
+.lc-billi-select{background:transparent;border:none;border-bottom:1px solid var(--border-gold);color:var(--gold-light);font-family:var(--font-mono);font-size:10px;letter-spacing:0.1em;cursor:pointer;outline:none;padding:2px 4px;-webkit-appearance:none}
+.lc-billi-select option{background:#111;color:var(--text)}
+.lc-amount-row{display:flex;align-items:baseline;gap:4px;margin-bottom:6px}
+.lc-currency{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--gold);line-height:1}
+.lc-number{font-family:var(--font-mono);font-size:clamp(32px,5vw,52px);font-weight:700;color:#fff;letter-spacing:-0.03em;transition:color 0.1s;line-height:1}
+.lc-number.flash{color:var(--gold-light)}
+.lc-sub{font-size:11px;color:var(--muted);font-family:var(--font-mono);letter-spacing:0.08em}
+.lc-time-box,.lc-rate-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:2px;padding:12px 16px;text-align:center;min-width:100px}
+.lc-time-label{font-family:var(--font-mono);font-size:8px;letter-spacing:0.25em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.lc-time-val{font-family:var(--font-mono);font-size:16px;color:var(--text);font-weight:700}
+.lc-rate-val{font-family:var(--font-mono);font-size:13px;color:var(--gold);font-weight:700}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--surface3) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:2px;height:20px}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .cmp-card{grid-template-columns:1fr;gap:8px}
+  .eq-sign{display:none}
+  .topbar{padding:14px 18px}
+  .billi-grid{grid-template-columns:repeat(2,1fr)}
+  .ugc-input-row{grid-template-columns:1fr;gap:8px}
+  .ugc-amount-input{width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">◆ Wealth Ratio</div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>Live FX Rates</div>
+    <button class="refresh-btn" id="refreshNWBtn" onclick="refreshNetWorth()">↻ Refresh Net Worth</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <p class="eyebrow">The Wealth Perspective Machine</p>
+  <h1 class="hero-title">MONEY<br>IS<br><em>RELATIVE.</em></h1>
+  <p class="hero-desc">
+    Bezos spends <strong>$1,000,000</strong> filling his yacht. For him, that's proportionally what a <strong>coffee</strong> is to you. 
+    Enter your net worth — and see reality.
+  </p>
+</section>
+
+<!-- GAME CTA BANNER -->
+<div class="game-cta-banner">
+  <div class="gcta-inner">
+    <div class="gcta-left">
+      <div class="gcta-tag">🎮 New Game</div>
+      <div class="gcta-title">Can you spend it all?</div>
+      <div class="gcta-sub">You get Musk's $839B. 60 seconds. Try to spend it all — it's impossible.</div>
+    </div>
+    <a href="game.html" class="gcta-btn">PLAY NOW ▶</a>
+  </div>
+</div>
+
+<!-- LIVE COUNTER STRIP -->
+<div class="live-counter-strip" id="liveCounterStrip">
+  <div class="lc-left">
+    <div class="lc-selector-row">
+      <span class="lc-label">Since you opened this page,</span>
+      <select class="lc-billi-select" id="lcBilliSelect" onchange="onLcBilliChange()">
+        <option value="musk">Elon Musk</option>
+        <option value="bezos">Jeff Bezos</option>
+        <option value="zuckerberg">Mark Zuckerberg</option>
+        <option value="arnault">Bernard Arnault</option>
+        <option value="ellison">Larry Ellison</option>
+        <option value="buffett">Warren Buffett</option>
+        <option value="gates">Bill Gates</option>
+        <option value="adelson">Jensen Huang</option>
+      </select>
+      <span class="lc-label">has earned:</span>
+    </div>
+    <div class="lc-amount-row">
+      <span class="lc-currency">$</span><span class="lc-number" id="lcNumber">0.00</span>
+    </div>
+    <div class="lc-sub" id="lcSub">Loading...</div>
+  </div>
+  <div class="lc-right">
+    <div class="lc-time-box">
+      <div class="lc-time-label">Time on page</div>
+      <div class="lc-time-val" id="lcTime">0s</div>
+    </div>
+    <div class="lc-rate-box">
+      <div class="lc-time-label">Per second</div>
+      <div class="lc-rate-val" id="lcRate">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-outer">
+  <div class="ticker-inner" id="mainTicker">
+    <span class="t-item">Bezos Yacht Fuel<span> $1,000,000</span></span>
+    <span class="t-item">Musk Daily Earnings<span> ~$720M</span></span>
+    <span class="t-item">Zuckerberg Security/yr<span> $14,000,000</span></span>
+    <span class="t-item">Arnault Tiffany Deal<span> $15,800,000,000</span></span>
+    <span class="t-item">Buffett Lunch Auction<span> $19,000,100</span></span>
+    <span class="t-item">Global Median Wealth<span> $8,654</span></span>
+    <span class="t-item">Top 10 Billionaires<span> $1.5 Trillion</span></span>
+    <span class="t-item">Bezos Yacht Fuel<span> $1,000,000</span></span>
+    <span class="t-item">Musk Daily Earnings<span> ~$720M</span></span>
+    <span class="t-item">Zuckerberg Security/yr<span> $14,000,000</span></span>
+    <span class="t-item">Arnault Tiffany Deal<span> $15,800,000,000</span></span>
+    <span class="t-item">Buffett Lunch Auction<span> $19,000,100</span></span>
+    <span class="t-item">Global Median Wealth<span> $8,654</span></span>
+    <span class="t-item">Top 10 Billionaires<span> $1.5 Trillion</span></span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- STEP 1: BILLIONAIRE -->
+  <div class="section-head">① Choose a billionaire</div>
+  <div class="billi-grid" id="billiGrid">
+    <div class="billi-card active" data-key="bezos" onclick="selectBilli(this)">
+      <span class="billi-emoji">🛥️</span>
+      <div class="billi-name">Jeff Bezos</div>
+      <div class="billi-wealth" id="nw-bezos">$224B</div>
+      <div class="billi-source" id="src-bezos">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="musk" onclick="selectBilli(this)">
+      <span class="billi-emoji">🚀</span>
+      <div class="billi-name">Elon Musk</div>
+      <div class="billi-wealth" id="nw-musk">$839B</div>
+      <div class="billi-source" id="src-musk">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="arnault" onclick="selectBilli(this)">
+      <span class="billi-emoji">👜</span>
+      <div class="billi-name">Arnault</div>
+      <div class="billi-wealth" id="nw-arnault">$171B</div>
+      <div class="billi-source" id="src-arnault">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="zuckerberg" onclick="selectBilli(this)">
+      <span class="billi-emoji">🤖</span>
+      <div class="billi-name">Zuckerberg</div>
+      <div class="billi-wealth" id="nw-zuckerberg">$222B</div>
+      <div class="billi-source" id="src-zuckerberg">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="buffett" onclick="selectBilli(this)">
+      <span class="billi-emoji">📈</span>
+      <div class="billi-name">Buffett</div>
+      <div class="billi-wealth" id="nw-buffett">$149B</div>
+      <div class="billi-source" id="src-buffett">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="gates" onclick="selectBilli(this)">
+      <span class="billi-emoji">💻</span>
+      <div class="billi-name">Bill Gates</div>
+      <div class="billi-wealth" id="nw-gates">$108B</div>
+      <div class="billi-source" id="src-gates">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="ellison" onclick="selectBilli(this)">
+      <span class="billi-emoji">☁️</span>
+      <div class="billi-name">Larry Ellison</div>
+      <div class="billi-wealth" id="nw-ellison">$190B</div>
+      <div class="billi-source" id="src-ellison">Forbes 2026</div>
+    </div>
+    <div class="billi-card" data-key="adelson" onclick="selectBilli(this)">
+      <span class="billi-emoji">🃏</span>
+      <div class="billi-name">Jensen Huang</div>
+      <div class="billi-wealth" id="nw-adelson">$154B</div>
+      <div class="billi-source" id="src-adelson">Forbes 2026</div>
+    </div>
+  </div>
+
+  <!-- STEP 2: YOUR WEALTH -->
+  <div class="section-head">② Your net worth</div>
+  <div class="card">
+    <div class="input-group">
+      <label class="input-label">Currency & Amount</label>
+      <div class="input-flex">
+        <select class="styled-select" id="currSelect" onchange="onCurrencyChange()">
+          <option value="USD">🇺🇸 USD $</option>
+          <option value="EUR">🇪🇺 EUR €</option>
+          <option value="GBP">🇬🇧 GBP £</option>
+          <option value="CHF">🇨🇭 CHF ₣</option>
+          <option value="JPY">🇯🇵 JPY ¥</option>
+          <option value="AED">🇦🇪 AED د.إ</option>
+          <option value="SGD">🇸🇬 SGD S$</option>
+          <option value="BTC">₿ BTC</option>
+          <option value="ETH">Ξ ETH</option>
+        </select>
+        <input class="styled-input" id="amtInput" type="number" placeholder="50000" min="0.000001" step="any">
+      </div>
+      <div class="currency-rate" id="rateDisplay">Loading live exchange rates...</div>
+    </div>
+    <div class="quick-amounts">
+      <button class="qa-btn" onclick="setAmt(10000)">$10K</button>
+      <button class="qa-btn" onclick="setAmt(25000)">$25K</button>
+      <button class="qa-btn" onclick="setAmt(50000)">$50K</button>
+      <button class="qa-btn" onclick="setAmt(100000)">$100K</button>
+      <button class="qa-btn" onclick="setAmt(250000)">$250K</button>
+      <button class="qa-btn" onclick="setAmt(500000)">$500K</button>
+      <button class="qa-btn" onclick="setAmt(1000000)">$1M</button>
+      <button class="qa-btn" onclick="setAmt(5000000)">$5M</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CUSTOM COMPARISONS (UGC) -->
+  <div class="ugc-section">
+    <div class="ugc-header" onclick="toggleUGC()">
+      <span class="ugc-title">③ Add your own comparisons (optional)</span>
+      <span class="ugc-toggle" id="ugcToggle">+</span>
+    </div>
+    <div class="ugc-body" id="ugcBody">
+      <p class="ugc-hint">What does this billionaire spend money on that you want to relate to? Enter a name and how much it costs them.</p>
+      <div class="ugc-input-row">
+        <input class="ugc-name-input" id="ugcName" type="text" placeholder='e.g. "Private jet to Ibiza"'>
+        <input class="ugc-amount-input" id="ugcAmount" type="number" placeholder="500000" min="1">
+        <button class="ugc-add-btn" onclick="addUGC()">+ ADD</button>
+      </div>
+      <div class="ugc-list" id="ugcList"></div>
+    </div>
+  </div>
+
+  <!-- CALCULATE -->
+  <button class="cta" onclick="calculate()">◆ &nbsp; SHOW ME THE TRUTH &nbsp; ◆</button>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-hero">
+      <div id="resultsTitle" class="results-title"></div>
+      <div id="resultsSub" class="results-sub"></div>
+    </div>
+
+    <!-- EARN SPEED -->
+    <div class="section-head">Wealth velocity</div>
+    <div class="earn-card" id="earnCard"></div>
+
+    <!-- COMPARISONS -->
+    <div class="section-head" style="margin-top:40px">The reality check</div>
+    <div class="compare-grid" id="compareGrid"></div>
+
+    <!-- SCREENSHOT -->
+    <div class="section-head" style="margin-top:40px">Share your mind-blow</div>
+    <div class="screenshot-panel">
+      <div class="ss-label">Generate a shareable card</div>
+      <div class="ss-desc">Pick one comparison and download it as an image for Instagram, Twitter or WhatsApp.</div>
+      <div class="ss-controls">
+        <select class="ss-card-select" id="ssCardSelect"></select>
+        <button class="ss-btn" id="ssBtn" onclick="generateScreenshot()">⬇ Download Image</button>
+      </div>
+    </div>
+
+    <!-- SHARE -->
+    <div class="share-bar">
+      <div class="share-copy"><strong>Shocked?</strong> Make someone else rethink money.</div>
+      <div class="share-btns">
+        <button class="share-btn" id="copyLinkBtn" onclick="copyLink()">Copy Link</button>
+        <button class="share-btn" onclick="shareX()">Share on X</button>
+        <button class="share-btn" onclick="shareWA()">WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREENSHOT TARGET (off-screen) -->
+<div id="ssTarget">
+  <div class="ss-inner" id="ssInner">
+    <div class="ss-brand">◆ WEALTH RATIO</div>
+    <div class="ss-big-label">For <span id="ss-billi-name-label"></span>, spending</div>
+    <div class="ss-billi-name" id="ss-spend-amount"></div>
+    <div class="ss-billi-spend" id="ss-spend-name"></div>
+    <div class="ss-divider"></div>
+    <div class="ss-eq-label">Feels the same as you spending</div>
+    <div class="ss-your-line" id="ss-your-amount"></div>
+    <div class="ss-relatable" id="ss-relatable"></div>
+    <div class="ss-footer">
+      <div class="ss-hashtag">#WealthRatio #wealthgap</div>
+      <div class="ss-url">wealthgap.wtf</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">wealthgap.wtf</div>
+  <div>Net worth figures are estimates from public sources. For educational & entertainment purposes.</div>
+  <div class="footer-links">
+    <a href="https://wealthgap.wtf">wealthgap.wtf</a>
+    <a href="#">Methodology</a>
+    <a href="#">About</a>
+  </div>
+</footer>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const BILLI_DATA = {
+  bezos: {
+    name: "Jeff Bezos", emoji: "🛥️",
+    wealth: 224e9,
+    annualIncome: 8e9,
+    comparisons: [
+      { icon:"🛥️", title:"Fill Koru superyacht with fuel",      amount:1_000_000,  desc:"One full tank of his 417ft sailing yacht" },
+      { icon:"🏎️", title:"Buy a Bugatti Chiron Super Sport",    amount:3_900_000,  desc:"His preferred hypercar, delivery included" },
+      { icon:"🚀", title:"Single Blue Origin New Shepard seat", amount:450_000,    desc:"Per seat on his own space company" },
+      { icon:"🏝️", title:"Private island weekend (200 guests)", amount:2_500_000,  desc:"Full buyout, catering, staff included" },
+      { icon:"⌚", title:"Patek Philippe Grandmaster Chime",    amount:31_000_000, desc:"Most expensive watch ever sold at auction" },
+      { icon:"🖼️", title:"Basquiat painting at Christie's",     amount:85_000_000, desc:"Top Basquiat pieces at recent auctions" },
+      { icon:"✈️", title:"Gulfstream G700 private jet",          amount:78_000_000, desc:"Full list price, delivery in 2 years" },
+      { icon:"🏠", title:"Beverly Hills estate purchase",        amount:165_000_000,desc:"His Medina WA compound value" },
+    ]
+  },
+  musk: {
+    name: "Elon Musk", emoji: "🚀",
+    wealth: 839e9,
+    annualIncome: 120e9,
+    comparisons: [
+      { icon:"🐦", title:"Buying Twitter / X",                  amount:44_000_000_000, desc:"He paid cash and financed — total deal value" },
+      { icon:"🚀", title:"One Starship test flight",             amount:100_000_000,    desc:"Estimated per-launch cost including fuel" },
+      { icon:"✈️", title:"Gulfstream G650ER (one way charter)", amount:350_000,        desc:"LA → Tokyo private charter, one way" },
+      { icon:"⚡", title:"Tesla Cyberbeast (top trim)",          amount:99_990,         desc:"His own flagship truck" },
+      { icon:"🔐", title:"Annual personal security",             amount:25_000_000,     desc:"Estimated personal protection cost" },
+      { icon:"🌍", title:"SpaceX Starlink terminal farm",        amount:5_000_000,      desc:"~2,000 Starlink terminals at $2,500 each" },
+      { icon:"🧬", title:"Neuralink funding round participation",amount:650_000_000,    desc:"Series D round he led" },
+      { icon:"🏠", title:"His entire real estate portfolio sold",amount:1,              desc:"He sold ALL his houses on principle" },
+    ]
+  },
+  arnault: {
+    name: "Bernard Arnault", emoji: "👜",
+    wealth: 171e9,
+    annualIncome: 8e9,
+    comparisons: [
+      { icon:"👜", title:"Hermès Himalaya Birkin 30",            amount:500_000,     desc:"The rarest bag in existence, platinum hardware" },
+      { icon:"💍", title:"Tiffany Diamond Necklace (bespoke)",   amount:30_000_000,  desc:"Museum-level custom commission" },
+      { icon:"🍷", title:"Pétrus 1945 case (12 bottles)",        amount:1_500_000,   desc:"Most valuable Bordeaux ever produced" },
+      { icon:"⌚", title:"Patek Philippe 5002P Sky Moon Tourbillon",amount:2_600_000, desc:"Most complicated wristwatch by Patek" },
+      { icon:"✈️", title:"Paris → NYC Gulfstream charter",       amount:180_000,     desc:"One-way private, 8 pax, catering included" },
+      { icon:"🏰", title:"French Château acquisition",            amount:30_000_000,  desc:"Mid-size Bordeaux Premier Grand Cru estate" },
+      { icon:"🛍️", title:"Entire Dior Summer collection",        amount:2_500_000,   desc:"Full runway wardrobe, front row to closet" },
+      { icon:"🖼️", title:"Klimt painting at auction",            amount:192_000_000, desc:"Klimt Lady with Fan, Sotheby's 2023 record" },
+    ]
+  },
+  zuckerberg: {
+    name: "Mark Zuckerberg", emoji: "🤖",
+    wealth: 222e9,
+    annualIncome: 10e9,
+    comparisons: [
+      { icon:"🌺", title:"Koolau Ranch compound, Hawaii",         amount:270_000_000, desc:"Underground bunker, 1,400-acre development" },
+      { icon:"🔐", title:"Annual personal security budget",       amount:14_000_000,  desc:"Disclosed in Meta SEC filings" },
+      { icon:"🥽", title:"All Meta Quest 3 units ever sold",      amount:2_400_000_000,desc:"~4.8M units × estimated $500 avg revenue" },
+      { icon:"🥊", title:"Build a private MMA gym + coaches/yr",  amount:3_500_000,   desc:"Facility build + full-time coaches + sparring" },
+      { icon:"🏝️", title:"Private island charter (1 week)",       amount:400_000,     desc:"Premium Pacific island, full staff" },
+      { icon:"🤖", title:"Single Llama supercluster GPU cluster", amount:10_000_000,  desc:"256× H100 cluster, rack + power + colocation" },
+      { icon:"🚁", title:"Bell 525 Relentless helicopter",         amount:15_000_000,  desc:"Top-of-line civilian helicopter, configured" },
+      { icon:"🎓", title:"Fund a small university for a year",    amount:50_000_000,  desc:"Operating budget of a mid-size liberal arts school" },
+    ]
+  },
+  buffett: {
+    name: "Warren Buffett", emoji: "📈",
+    wealth: 149e9,
+    annualIncome: 5e9,
+    comparisons: [
+      { icon:"🏠", title:"His Omaha house (since 1958)",          amount:31_500,     desc:"He bought it for $31,500 — still lives there" },
+      { icon:"🥩", title:"Charity lunch auction (final price)",    amount:19_000_100, desc:"2022 record — Crypto entrepreneur Justin Sun" },
+      { icon:"🥤", title:"Cherry Coke supply for a year",         amount:3_650,      desc:"~10 cans/day × $1/can warehouse price" },
+      { icon:"💼", title:"His own CEO salary",                     amount:100_000,    desc:"Annual Berkshire Hathaway compensation" },
+      { icon:"🏭", title:"Acquire BNSF Railway (2009)",            amount:26_500_000_000, desc:"Largest acquisition in Berkshire history" },
+      { icon:"🌍", title:"Annual Gates Foundation donation",       amount:4_100_000_000,  desc:"Annual Berkshire B-share gift, recent years" },
+      { icon:"✈️", title:"Private jet (his 'Indefensible')",        amount:9_700_000,      desc:"His NetJets Falcon 7X — he named it himself" },
+      { icon:"📰", title:"Buy the Washington Post",                amount:250_000_000,    desc:"Price Bezos actually paid in 2013" },
+    ]
+  },
+  gates: {
+    name: "Bill Gates", emoji: "💻",
+    wealth: 108e9,
+    annualIncome: 5e9,
+    comparisons: [
+      { icon:"🏠", title:"Xanadu 2.0 — his Medina WA estate",     amount:127_000_000,  desc:"77,000 sq ft, 7 bedrooms, trampoline room" },
+      { icon:"💊", title:"Annual Gates Foundation grant",          amount:6_000_000_000,desc:"Annual giving budget, 2023 target" },
+      { icon:"🌾", title:"US farmland portfolio",                  amount:690_000_000,  desc:"Largest private farmland owner in USA" },
+      { icon:"✈️", title:"Bombardier BD-700 Global Express",       amount:40_000_000,   desc:"His primary jet, fully customized" },
+      { icon:"🖼️", title:"Codex Leicester (Leonardo da Vinci)",    amount:30_800_000,   desc:"He bought it in 1994, still owns it" },
+      { icon:"⚡", title:"Breakthrough Energy Ventures round",      amount:1_000_000_000,desc:"His personal climate tech fund commitment" },
+      { icon:"🏄", title:"Bora Bora resort full buyout (1 week)",  amount:3_200_000,    desc:"Full private island resort, incl. staff" },
+      { icon:"📚", title:"Harvard University endowment income/yr", amount:2_200_000_000,desc:"Annual distribution from $53B endowment" },
+    ]
+  },
+  ellison: {
+    name: "Larry Ellison", emoji: "☁️",
+    wealth: 190e9,
+    annualIncome: 9e9,
+    comparisons: [
+      { icon:"🏝️", title:"Buy Lanai, Hawaii (98% of the island)",  amount:300_000_000,  desc:"He bought it from David Murdock in 2012" },
+      { icon:"⛵", title:"Rising Sun — his 453ft megayacht",        amount:200_000_000,  desc:"Built 2004, sold to David Geffen — then rebought" },
+      { icon:"🎾", title:"Indian Wells BNP Paribas Open (buy it)", amount:100_000_000,  desc:"He owns the tournament and the stadium" },
+      { icon:"✈️", title:"Full fleet of aircraft at Oracle base",   amount:150_000_000,  desc:"Includes MiG-29, Marchetti jets, helicopters" },
+      { icon:"🏎️", title:"His McLaren F1 road car",                 amount:12_000_000,   desc:"Rare road-legal F1 car, 3-seat config" },
+      { icon:"🏠", title:"Malibu compound (7 properties)",          amount:80_000_000,   desc:"Adjacent oceanfront properties in Malibu" },
+      { icon:"☁️", title:"Funding Oracle Cloud data center",         amount:5_000_000_000,desc:"Single hyperscale Oracle Cloud campus build" },
+      { icon:"🚗", title:"Rolls-Royce Boat Tail (bespoke)",          amount:28_000_000,   desc:"Most expensive new car ever commissioned" },
+    ]
+  },
+  adelson: {
+    name: "Jensen Huang", emoji: "🧠",
+    wealth: 154e9,
+    annualIncome: 5e9,
+    comparisons: [
+      { icon:"🧠", title:"One DGX H100 system (8× H100)",          amount:200_000,    desc:"His company's flagship AI server — one unit" },
+      { icon:"🏭", title:"NVIDIA new fab R&D partnership",          amount:1_000_000_000, desc:"Annual chip design R&D investment" },
+      { icon:"🎓", title:"NVIDIA Inception startup investment",     amount:100_000_000,   desc:"Annual startup ecosystem funding" },
+      { icon:"🍜", title:"His favorite ramen restaurant dinner",    amount:50,            desc:"He's known to love cheap ramen — literally $50" },
+      { icon:"✈️", title:"Corporate Gulfstream fleet (2 jets)",     amount:160_000_000,   desc:"NVDA's official aviation assets" },
+      { icon:"🏠", title:"San Jose compound + Atherton estate",     amount:30_000_000,    desc:"Known primary residences, combined value" },
+      { icon:"🤖", title:"Buy 1,000 H100 GPUs for a startup",       amount:40_000_000,    desc:"At ~$40K/GPU on secondary market" },
+      { icon:"🏆", title:"Acquire a mid-tier AI startup",           amount:500_000_000,   desc:"Typical acqui-hire or small AI co price" },
+    ]
+  }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let selectedBilli = 'bezos';
+let exchangeRates = { USD:1, EUR:0.92, GBP:0.79, CHF:0.89, JPY:150.5, AED:3.67, SGD:1.34, BTC:0.0000153, ETH:0.000304 };
+let ratesLoaded = false;
+let userCustomComparisons = [];
+let currentResults = null;
+
+// ============================================================
+// EXCHANGE RATES
+// ============================================================
+async function loadExchangeRates() {
+  try {
+    const res = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    const data = await res.json();
+    exchangeRates.EUR = data.rates.EUR;
+    exchangeRates.GBP = data.rates.GBP;
+    exchangeRates.CHF = data.rates.CHF;
+    exchangeRates.JPY = data.rates.JPY;
+    exchangeRates.AED = data.rates.AED;
+    exchangeRates.SGD = data.rates.SGD;
+    ratesLoaded = true;
+    updateRateDisplay();
+  } catch(e) {
+    // fallback rates already set
+    updateRateDisplay();
+  }
+  // Load crypto rates
+  try {
+    const cr = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+    // crypto fallback — use static
+  } catch(e){}
+}
+
+function updateRateDisplay() {
+  const cur = document.getElementById('currSelect').value;
+  const el = document.getElementById('rateDisplay');
+  if (cur === 'USD') {
+    el.innerHTML = `<span class="rate-val">1 USD = 1 USD</span> &nbsp;·&nbsp; Rates live from ExchangeRate-API ${ratesLoaded ? '✓' : '(cached)'}`;
+    return;
+  }
+  if (['BTC','ETH'].includes(cur)) {
+    const rates = {BTC:'~0.0000153',ETH:'~0.000304'};
+    el.innerHTML = `<span class="rate-val">1 USD = ${rates[cur]} ${cur}</span> &nbsp;·&nbsp; Approx. rate`;
+    return;
+  }
+  const rate = exchangeRates[cur] || 1;
+  const sym = {EUR:'€',GBP:'£',CHF:'₣',JPY:'¥',AED:'د.إ',SGD:'S$'}[cur] || cur;
+  el.innerHTML = `<span class="rate-val">1 USD = ${sym}${rate.toFixed(4)}</span> &nbsp;·&nbsp; ${ratesLoaded ? 'Live rate ✓' : 'Cached rate'}`;
+}
+
+function onCurrencyChange() {
+  updateRateDisplay();
+}
+
+function toUSD(amount, currency) {
+  if (currency === 'BTC') return amount / 0.0000153;
+  if (currency === 'ETH') return amount / 0.000304;
+  return amount / (exchangeRates[currency] || 1);
+}
+
+function fromUSD(usdAmount, currency) {
+  if (currency === 'BTC') return usdAmount * 0.0000153;
+  if (currency === 'ETH') return usdAmount * 0.000304;
+  return usdAmount * (exchangeRates[currency] || 1);
+}
+
+// ============================================================
+// LIVE NET WORTH (Claude AI with web search)
+// ============================================================
+async function refreshNetWorth() {
+  const btn = document.getElementById('refreshNWBtn');
+  btn.classList.add('loading');
+  btn.textContent = '↻ Fetching...';
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        system: `You are a financial data assistant. Search for the current net worth of the following billionaires and return ONLY a JSON object with no markdown, no explanation. Format: {"bezos":204000000000,"musk":220000000000,"arnault":155000000000,"zuckerberg":167000000000,"buffett":130000000000,"gates":128000000000,"ellison":173000000000,"adelson":118000000000}. Use real current figures from Forbes, Bloomberg or reliable sources. Numbers in USD, no letters.`,
+        messages: [{ role: 'user', content: 'Search for current net worth of Jeff Bezos, Elon Musk, Bernard Arnault, Mark Zuckerberg, Warren Buffett, Bill Gates, Larry Ellison, Jensen Huang. Return JSON only.' }]
+      })
+    });
+    const data = await resp.json();
+    const textBlock = data.content.find(b => b.type === 'text');
+    if (textBlock) {
+      const json = textBlock.text.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(json);
+      Object.entries(parsed).forEach(([key, val]) => {
+        const wealthEl = document.getElementById(`nw-${key}`);
+        const srcEl = document.getElementById(`src-${key}`);
+        if (wealthEl && val) {
+          BILLI_DATA[key].wealth = val;
+          wealthEl.textContent = formatB(val);
+          if (srcEl) srcEl.textContent = 'Live data ✓';
+          document.querySelector(`[data-key="${key}"]`)?.classList.add('active-live');
+        }
+      });
+    }
+  } catch(e) {
+    console.warn('Net worth refresh failed:', e);
+  }
+
+  btn.classList.remove('loading');
+  btn.textContent = '✓ Updated';
+  setTimeout(() => { btn.textContent = '↻ Refresh Net Worth'; }, 3000);
+}
+
+// ============================================================
+// UI HELPERS
+// ============================================================
+function selectBilli(el) {
+  document.querySelectorAll('.billi-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  selectedBilli = el.dataset.key;
+}
+
+function setAmt(val) {
+  const cur = document.getElementById('currSelect').value;
+  const converted = fromUSD(val, cur);
+  document.getElementById('amtInput').value = ['JPY'].includes(cur) ? Math.round(converted) : parseFloat(converted.toFixed(4));
+}
+
+function toggleUGC() {
+  const body = document.getElementById('ugcBody');
+  const toggle = document.getElementById('ugcToggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
+}
+
+function addUGC() {
+  const name = document.getElementById('ugcName').value.trim();
+  const amt = parseFloat(document.getElementById('ugcAmount').value);
+  if (!name || !amt || amt <= 0) return;
+  userCustomComparisons.push({ icon:'✏️', title: name, amount: amt, desc: 'Your custom comparison', custom: true });
+  renderUGCList();
+  document.getElementById('ugcName').value = '';
+  document.getElementById('ugcAmount').value = '';
+}
+
+function removeUGC(idx) {
+  userCustomComparisons.splice(idx, 1);
+  renderUGCList();
+}
+
+function renderUGCList() {
+  const list = document.getElementById('ugcList');
+  list.innerHTML = userCustomComparisons.map((c, i) => `
+    <div class="ugc-item">
+      <span class="ugc-item-name">${c.icon} ${c.title}</span>
+      <span class="ugc-item-amount">${formatUSD(c.amount)}</span>
+      <button class="ugc-item-del" onclick="removeUGC(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+// ============================================================
+// FORMATTING
+// ============================================================
+function formatUSD(val) {
+  if (val >= 1e12) return `$${(val/1e12).toFixed(2)}T`;
+  if (val >= 1e9)  return `$${(val/1e9).toFixed(2)}B`;
+  if (val >= 1e6)  return `$${(val/1e6).toFixed(2)}M`;
+  if (val >= 1e3)  return `$${(val/1e3).toFixed(1)}K`;
+  if (val < 1)     return `$${val.toFixed(3)}`;
+  return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(val);
+}
+
+function formatB(val) {
+  if (val >= 1e12) return `$${(val/1e12).toFixed(1)}T`;
+  if (val >= 1e9)  return `$${(val/1e9).toFixed(0)}B`;
+  return `$${(val/1e6).toFixed(0)}M`;
+}
+
+function formatUserCurrency(usdVal, currency) {
+  const converted = fromUSD(usdVal, currency);
+  const sym = {USD:'$',EUR:'€',GBP:'£',CHF:'₣',JPY:'¥',AED:'د.إ',SGD:'S$',BTC:'₿',ETH:'Ξ'}[currency] || '$';
+  if (currency === 'BTC') return `${sym}${converted.toFixed(6)}`;
+  if (currency === 'ETH') return `${sym}${converted.toFixed(5)}`;
+  if (currency === 'JPY') return `${sym}${Math.round(converted).toLocaleString()}`;
+  if (converted >= 1e6)  return `${sym}${(converted/1e6).toFixed(2)}M`;
+  if (converted >= 1e3)  return `${sym}${(converted/1e3).toFixed(1)}K`;
+  if (converted < 1)     return `${sym}${converted.toFixed(2)}`;
+  return `${sym}${converted.toLocaleString('en-US',{maximumFractionDigits:2})}`;
+}
+
+function relatable(usdVal) {
+  if (usdVal < 0.001) return "literally rounds to zero — invisible";
+  if (usdVal < 0.10)  return "a coin you wouldn't pick up off the floor";
+  if (usdVal < 0.50)  return "a piece of candy";
+  if (usdVal < 1.50)  return "a piece of gum";
+  if (usdVal < 4)     return "a vending machine snack";
+  if (usdVal < 6)     return "a cheap coffee";
+  if (usdVal < 10)    return "a Starbucks latte";
+  if (usdVal < 18)    return "a cocktail at a bar";
+  if (usdVal < 35)    return "a dinner for one";
+  if (usdVal < 60)    return "a week of groceries";
+  if (usdVal < 120)   return "a night out";
+  if (usdVal < 250)   return "a pair of decent sneakers";
+  if (usdVal < 500)   return "an AirPods Pro";
+  if (usdVal < 1200)  return "a weekend city trip";
+  if (usdVal < 3000)  return "a month's rent";
+  if (usdVal < 8000)  return "a used car payment";
+  if (usdVal < 25000) return "a semester of university";
+  if (usdVal < 60000) return "a decent used car";
+  if (usdVal < 150000)return "a year's salary";
+  if (usdVal < 400000)return "a luxury car";
+  if (usdVal < 800000)return "a down payment on a house";
+  return "life-changing money for most people";
+}
+
+// ============================================================
+// CALCULATE
+// ============================================================
+function calculate() {
+  const rawAmt = parseFloat(document.getElementById('amtInput').value);
+  const currency = document.getElementById('currSelect').value;
+  if (!rawAmt || rawAmt <= 0) {
+    document.getElementById('amtInput').style.borderColor = '#ff4444';
+    setTimeout(() => document.getElementById('amtInput').style.borderColor = '', 1200);
+    return;
+  }
+
+  const myWealthUSD = toUSD(rawAmt, currency);
+  const billi = BILLI_DATA[selectedBilli];
+  const ratio = billi.wealth / myWealthUSD;
+  const allComparisons = [...billi.comparisons, ...userCustomComparisons];
+
+  currentResults = { billi, ratio, currency, myWealthUSD, allComparisons };
+
+  // Title
+  document.getElementById('resultsTitle').textContent = `${billi.name}'s spending — from your POV`;
+  document.getElementById('resultsSub').textContent = `Their wealth is ${Math.round(ratio).toLocaleString()}× yours`;
+
+  // EARN SPEED CARD
+  renderEarnCard(billi, myWealthUSD, ratio, currency);
+
+  // COMPARE CARDS
+  renderCompareCards(allComparisons, ratio, currency, billi);
+
+  // SCREENSHOT SELECT
+  populateSsSelect(allComparisons);
+
+  const resultsEl = document.getElementById('results');
+  resultsEl.classList.add('visible');
+  setTimeout(() => resultsEl.scrollIntoView({ behavior:'smooth', block:'start' }), 100);
+}
+
+function renderEarnCard(billi, myWealthUSD, ratio, currency) {
+  const card = document.getElementById('earnCard');
+  const periods = [
+    { label:'Per second',  billAmount: billi.annualIncome / (365*24*3600) },
+    { label:'Per minute',  billAmount: billi.annualIncome / (365*24*60) },
+    { label:'Per hour',    billAmount: billi.annualIncome / (365*24) },
+    { label:'Per day',     billAmount: billi.annualIncome / 365 },
+    { label:'Per month',   billAmount: billi.annualIncome / 12 },
+    { label:'Per year',    billAmount: billi.annualIncome },
+  ];
+  card.innerHTML = `
+    <div class="earn-title">How fast ${billi.name.split(' ')[0]} earns money — and what it means for you</div>
+    <div class="earn-grid">
+      ${periods.map(p => {
+        const yourEq = p.billAmount / ratio;
+        const yourFmt = formatUserCurrency(yourEq, currency);
+        return `
+          <div class="earn-item">
+            <div class="earn-period">${p.label}</div>
+            <div class="earn-amount">${formatUSD(p.billAmount)}</div>
+            <div class="earn-you">= Your <span class="earn-you-val">${yourFmt}</span></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderCompareCards(comparisons, ratio, currency, billi) {
+  const grid = document.getElementById('compareGrid');
+  grid.innerHTML = '';
+  comparisons.forEach((c, i) => {
+    const yourEqUSD = c.amount / ratio;
+    const yourFmt = formatUserCurrency(yourEqUSD, currency);
+    const relatableStr = relatable(yourEqUSD);
+    const isZero = yourEqUSD < 0.001;
+    const card = document.createElement('div');
+    card.className = 'cmp-card' + (c.custom ? ' ugc-card' : '');
+    card.style.animationDelay = `${i * 0.05}s`;
+    card.innerHTML = `
+      <div>
+        <div class="side-lbl">${billi.name.split(' ')[0]} spends</div>
+        <div class="side-icon">${c.icon}</div>
+        <div class="side-title">${c.title}</div>
+        <div class="side-num">${formatUSD(c.amount)}</div>
+        <div class="side-desc">${c.desc}</div>
+      </div>
+      <div class="eq-sign">=</div>
+      <div>
+        <div class="side-lbl">For you, that's like</div>
+        <div class="side-num your-num">${yourFmt}</div>
+        <div><span class="relatable-tag ${isZero ? 'zero-tag' : ''}">${relatableStr}</span></div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function populateSsSelect(comparisons) {
+  const sel = document.getElementById('ssCardSelect');
+  sel.innerHTML = comparisons.map((c, i) =>
+    `<option value="${i}">${c.icon} ${c.title}</option>`
+  ).join('');
+}
+
+// ============================================================
+// SCREENSHOT
+// ============================================================
+async function generateScreenshot() {
+  if (!currentResults) return;
+  const btn = document.getElementById('ssBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+
+  const idx = parseInt(document.getElementById('ssCardSelect').value);
+  const { billi, ratio, currency, allComparisons } = currentResults;
+  const c = allComparisons[idx];
+  const yourEqUSD = c.amount / ratio;
+
+  // Populate hidden div
+  document.getElementById('ss-billi-name-label').textContent = billi.name;
+  document.getElementById('ss-spend-amount').textContent = formatUSD(c.amount);
+  document.getElementById('ss-spend-name').textContent = `on: "${c.title}"`;
+  document.getElementById('ss-your-amount').textContent = formatUserCurrency(yourEqUSD, currency);
+  document.getElementById('ss-relatable').textContent = `≈ ${relatable(yourEqUSD)}`;
+
+  const target = document.getElementById('ssTarget');
+  target.style.left = '0';
+  target.style.top = '-9999px';
+  target.style.position = 'absolute';
+
+  try {
+    const canvas = await html2canvas(document.getElementById('ssInner'), {
+      backgroundColor: '#080808',
+      scale: 2,
+      useCORS: true,
+      logging: false
+    });
+    const link = document.createElement('a');
+    link.download = `wealth-ratio-${billi.name.replace(/\s/g,'-').toLowerCase()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('Screenshot failed. Try a different browser.');
+  }
+
+  target.style.left = '-9999px';
+  target.style.top = '0';
+  btn.disabled = false;
+  btn.textContent = '⬇ Download Image';
+}
+
+// ============================================================
+// SHARE
+// ============================================================
+function copyLink() {
+  navigator.clipboard.writeText('https://wealthgap.wtf');
+  const btn = document.getElementById('copyLinkBtn');
+  btn.textContent = '✓ Copied!';
+  btn.classList.add('ok');
+  setTimeout(() => { btn.textContent = 'Copy Link'; btn.classList.remove('ok'); }, 2500);
+}
+
+function shareX() {
+  if (!currentResults) { alert('Run the calculator first!'); return; }
+  const { billi, ratio, currency, allComparisons } = currentResults;
+  const c = allComparisons[0];
+  const yourEqUSD = c.amount / ratio;
+  const txt = `For ${billi.name}, spending ${formatUSD(c.amount)} on "${c.title}" feels like me spending ${formatUserCurrency(yourEqUSD, currency)} — ${relatable(yourEqUSD)}.\n\nThe wealth gap is insane. 🤯\n\n#WealthRatio`;
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(txt)}&url=${encodeURIComponent('https://wealthgap.wtf')}`);
+}
+
+function shareWA() {
+  if (!currentResults) { alert('Run the calculator first!'); return; }
+  const { billi, ratio, currency, allComparisons } = currentResults;
+  const c = allComparisons[0];
+  const yourEqUSD = c.amount / ratio;
+  const txt = `🤯 For ${billi.name}, spending ${formatUSD(c.amount)} on "${c.title}" feels like me spending ${formatUserCurrency(yourEqUSD, currency)} (≈ ${relatable(yourEqUSD)}). The wealth gap is INSANE.
+
+Check yours: https://wealthgap.wtf`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`);
+}
+
+// ============================================================
+// KEYBOARD
+// ============================================================
+document.getElementById('amtInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') calculate();
+});
+document.getElementById('ugcAmount').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addUGC();
+});
+
+// ============================================================
+// LIVE COUNTER
+// ============================================================
+const PAGE_OPEN_TIME = Date.now();
+let lcInterval = null;
+let lcBilliKey = 'musk';
+
+// Estimated annual income per billionaire (conservative, wealth-growth based)
+const ANNUAL_INCOME = {
+  musk:         120_000_000_000,
+  bezos:          8_000_000_000,
+  zuckerberg:    15_000_000_000,
+  arnault:        8_000_000_000,
+  ellison:       10_000_000_000,
+  buffett:        5_000_000_000,
+  gates:          5_000_000_000,
+  adelson:        8_000_000_000,
+};
+
+const PER_SECOND = {};
+Object.entries(ANNUAL_INCOME).forEach(([k, v]) => {
+  PER_SECOND[k] = v / (365 * 24 * 3600);
+});
+
+// Contextual milestones — what can they buy at this amount?
+const MILESTONES = [
+  { usd: 1,        label: 'earned $1 — a piece of gum' },
+  { usd: 5,        label: 'earned enough for a coffee' },
+  { usd: 20,       label: 'earned a cocktail' },
+  { usd: 100,      label: 'earned a nice dinner' },
+  { usd: 500,      label: 'earned a weekend trip' },
+  { usd: 1_000,    label: 'earned $1,000 in total' },
+  { usd: 5_000,    label: 'earned a month of rent' },
+  { usd: 10_000,   label: 'earned $10K — a used car' },
+  { usd: 50_000,   label: 'earned $50K — a year\'s salary' },
+  { usd: 100_000,  label: 'earned $100K' },
+  { usd: 500_000,  label: 'earned $500K — a house down payment' },
+  { usd: 1_000_000, label: 'earned $1 MILLION' },
+  { usd: 10_000_000, label: 'earned $10 MILLION' },
+  { usd: 100_000_000, label: 'earned $100 MILLION 🤯' },
+  { usd: 1_000_000_000, label: 'earned $1 BILLION 💀' },
+];
+
+function getContextLabel(usd, name) {
+  const first = name.split(' ')[0];
+  let label = `${first} earns $${formatCompact(usd)} while you read this`;
+  for (let i = MILESTONES.length - 1; i >= 0; i--) {
+    if (usd >= MILESTONES[i].usd) {
+      label = `${first} just ${MILESTONES[i].label}`;
+      break;
+    }
+  }
+  return label;
+}
+
+function formatCompact(val) {
+  if (val >= 1e9)  return (val/1e9).toFixed(3) + 'B';
+  if (val >= 1e6)  return (val/1e6).toFixed(3) + 'M';
+  if (val >= 1e3)  return (val/1e3).toFixed(2) + 'K';
+  return val.toFixed(2);
+}
+
+function formatLiveNumber(val) {
+  // Always show full number with 2 decimals, comma-separated
+  if (val >= 1e9)  return (val/1e9).toFixed(6).replace(/\.?0+$/, '') + 'B';
+  if (val >= 1e6)  return (val/1e6).toFixed(4) + 'M';
+  if (val >= 1e3)  return (val/1e3).toFixed(3) + 'K';
+  return val.toFixed(2);
+}
+
+function formatTime(seconds) {
+  if (seconds < 60) return `${seconds}s`;
+  if (seconds < 3600) return `${Math.floor(seconds/60)}m ${seconds%60}s`;
+  const h = Math.floor(seconds/3600);
+  const m = Math.floor((seconds%3600)/60);
+  return `${h}h ${m}m`;
+}
+
+function startLiveCounter() {
+  if (lcInterval) clearInterval(lcInterval);
+
+  const perSec = PER_SECOND[lcBilliKey];
+  const billi = BILLI_DATA[lcBilliKey];
+  const rateEl = document.getElementById('lcRate');
+
+  // Show per-second rate
+  rateEl.textContent = `$${formatCompact(perSec)}`;
+  document.getElementById('lcRate').textContent = `$${formatCompact(perSec)}/s`;
+
+  lcInterval = setInterval(() => {
+    const elapsed = (Date.now() - PAGE_OPEN_TIME) / 1000; // seconds
+    const earned = perSec * elapsed;
+
+    const numEl = document.getElementById('lcNumber');
+    const subEl = document.getElementById('lcSub');
+    const timeEl = document.getElementById('lcTime');
+
+    numEl.textContent = formatLiveNumber(earned);
+
+    // Flash effect
+    numEl.classList.add('flash');
+    setTimeout(() => numEl.classList.remove('flash'), 80);
+
+    subEl.textContent = getContextLabel(earned, billi.name);
+    timeEl.textContent = formatTime(Math.floor(elapsed));
+  }, 100); // update 10x per second for smoothness
+}
+
+function onLcBilliChange() {
+  lcBilliKey = document.getElementById('lcBilliSelect').value;
+  startLiveCounter();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadExchangeRates();
+startLiveCounter();
+</script>
+</body>
+</html>
